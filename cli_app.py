@@ -1,4 +1,4 @@
-from Sparserestore.restore import restore_files, FileToRestore, restore_file
+from exploit.restore import restore_files, FileToRestore, restore_file
 from tweaks.tweaks import tweaks, TweakModifyType, FeatureFlagTweak, EligibilityTweak
 from devicemanagement.constants import Device
 
@@ -114,7 +114,7 @@ while running:
             
             # set the plist keys
             if not resetting:
-                for tweak in tweaks.values:
+                for tweak in tweaks.values():
                     if isinstance(tweak, FeatureFlagTweak):
                         flag_plist = tweak.apply_tweak(flag_plist)
                     elif isinstance(tweak, EligibilityTweak):
@@ -164,6 +164,18 @@ while running:
             # exit the panel
             print("Goodbye!")
             running = False
+        elif page == 42:
+            plist_data = {
+                "canvas_height": 1792,
+                "canvas_width": 828
+            }
+            restore_files(
+                files=[FileToRestore(
+                    contents=plistlib.dumps(plist_data),
+                    restore_path="/private/var/mobile/Library/Preferences/",
+                    restore_name="com.apple.iokit.IOMobileGraphicsFamily.plist"
+                )], reboot=True, lockdown_client=device.ld
+            )
         else:
             tweak = list(tweaks.values())[page-1]
             if page > 0 and page <= num_tweaks and tweak.is_compatible(device.version):
